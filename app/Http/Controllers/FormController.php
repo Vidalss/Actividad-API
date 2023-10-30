@@ -1,8 +1,11 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Models\Activity;
 use App\Models\Form;
+use App\Models\Period;
+use App\Models\Role;
+use App\Models\Staff;
 use Illuminate\Http\Request;
 
 class FormController extends Controller
@@ -12,7 +15,8 @@ class FormController extends Controller
      */
     public function index()
     {
-        //
+        $activities = Activity::all();
+        return view('activity.index', compact('activities'));
     }
 
     /**
@@ -20,7 +24,12 @@ class FormController extends Controller
      */
     public function create()
     {
-        //
+        $activities = Activity::all();
+        $periods = Period::all();
+        $roles = Role::all();
+        $staff = Staff::all();
+
+        return view('activity.create', compact('activities','periods','roles','staff'));
     }
 
     /**
@@ -28,7 +37,21 @@ class FormController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'name' => 'required',
+            'objective'=> 'required',
+            'competence'=> 'required',
+            'syllabus'=> 'required',
+            'authorized'=> 'required',
+            'activity'=> 'required',
+            'credits'=> 'required | numeric',
+            'period_id'=> 'required',
+            'staff_id'=> 'required',
+            'role_id' => 'required'
+        ]);
+
+        Activity::create($data);
+        return  redirect()->route('activities.index');
     }
 
     /**
