@@ -1,109 +1,65 @@
 @extends('adminlte::page')
 
-@section('title', 'CRUD')
+@section('title', 'Lista')
 
 @section('content_header')
+    <h1>Lista de Actividades</h1>
 @stop
 
 @section('content')
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-<div class="row my-4">
-    <div class="col-12">
-        <h1 class="text-center">Actividades</h1>
-        <p class="text-end">
-            <a href="{{ route('activities.create') }}">
-                <button type="button" class="btn btn-primary" style="margin-right: 5px;">Agregar</button>
-            </a>
-        </p>
-    </div>
-</div>
 
-<div class="row">
-    <div class="col-12">
-        <table id="crud" class="table table-bordered">
-            <thead>
+    <a href="{{ route('activities.create') }}" class="btn btn-primary">Nueva Actividad</a>
+
+    @if (session('message'))
+        <div class="alert alert-info">{{ session('message') }}</div>
+    @endif
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Actividad</th>
+                <th>Nombre</th>
+                <th>Objetivo</th>
+                <th>Competencia</th>
+                <th>Temario</th>
+                <th>Periodo</th>
+                <th>Autorizada</th>
+                <th>Staff</th>
+                <th>No. Créditos</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($activities as $activity)
                 <tr>
-                    <th scope="col" class="text-center">Nombre</th>
-                    <th scope="col" class="text-center">Objetivo</th>
-                    <th scope="col" class="text-center">Competencia</th>
-                    <th scope="col" class="text-center">Temario</th>
-                    <th scope="col" class="text-center">Actividad</th>
-                    <th scope="col" class="text-center">Creditos</th>
-                    <th scope="col" class="text-center">Staff</th>
-                    <th scope="col" class="text-center">Periodo</th>
-                </tr>
-            </thead>
-            <tbody class="table-group-divider">
-                @foreach ($activities as $activity)
-                <tr>
-                    <td class="text-center">{{ $activity->name}}</td>
-                    <td class="text-center">{{ $activity->objective}}</td>
-                    <td class="text-center">{{ $activity->competence }}</td>
-                    <td class="text-center">{{ $activity->syllabus }}</td>
-                    <td class="text-center">{{ $activity->activity }}</td>
-                    <td class="text-center">{{ $activity->credits }}</td>
-                    <td class="text-center">{{ $activity->st->name }}</td>
-                    <td class="text-center">{{ $activity->period->long_name }}</td>
-                    <td class="text-center">
-                        <div class="d-flex justify-content-center mb-3">
-                            <div class="p-2">
-                                <a href="{{ route('activities.edit', $activity) }}">
-                                    <button type="button" class="btn btn-primary">
-                                        <i class="fas fa-pencil-alt"></i>
-                                    </button>
-                                </a>
-                            </div>
-                            <div class="p-2">
-                                <a href="{{ route('activities.show', $activity) }}">
-                                    <button type="button" class="btn btn-success">
-                                        <i class="fa-solid fa-eye"></i>
-                                    </button>
-                                </a>
-                            </div>
-                            <div class="p-2">
-                                <form action="{{ route('activities.destroy', $activity) }}" method="post">
-                                    @method("DELETE")
-                                    @csrf
-                                    <button type="submit" class="btn btn-danger">
-                                        <i class="fa-solid fa-trash"></i>
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
+                    <td>{{ $activity->activity }}</td>
+                    <td>{{ $activity->name }}</td>
+                    <td>{{ $activity->objective }}</td>
+                    <td>{{ $activity->competence }}</td>
+                    <td>{{ $activity->syllabus }}</td>
+                    <td>{{ $activity->period->long_name }}</td>
+                    <td>{{ $activity->authorized }}</td>
+                    <td>{{ $activity->staff->long_name }} </td>
+                    <td>{{ $activity->credits }}</td>
+                    <td>
+                        <a href="{{ route('activities.show', $activity) }}" class="btn btn-info">Ver</a>
+                        <a href="{{ route('activities.edit', $activity) }}" class="btn btn-warning">Editar</a>
+                        <form action="{{ route('activities.destroy', $activity) }}" method="POST" style="display:inline">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('¿Estás seguro?')">Eliminar</button>
+                        </form>
                     </td>
                 </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
-</div>
+            @endforeach
+        </tbody>
+    </table>
 @stop
 
 @section('css')
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="/css/admin_custom.css">
 @stop
 
 @section('js')
-    <script>
-    $(document).ready(function() {
-        $('#crud').DataTable({
-            "language":{
-                "search":   "Buscar",
-                "lengthMenu":  "Mostrar _MENU_ inscripciones",
-                "info":   "Mostrando página _PAGE_ de _PAGES_",
-                "paginate":  {
-                    "previous": "Anterior",
-                    "next": "Siguiente",
-                    "first":   "Primero",
-                    "last":  "Ultimo"
-                }
-            }
-        });
-    });
-    </script>
-
-    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-    <script src="https://kit.fontawesome.com/839bf29115.js" crossorigin="anonymous"></script>
+    <script> console.log('Hi!'); </script>
 @stop
