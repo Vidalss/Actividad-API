@@ -2,21 +2,30 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ActivityCollection;
 use App\Models\Activity;
 use App\Models\Period;
 use App\Models\Staff;
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Filters\ActivityFilter;
+use App\Http\Resources\ActivityResource;
+use App\Http\Requests\StoreActivityRequest;
+use App\Http\Requests\UpdateActivityRequest;
+
 
 class ActivityController extends Controller
 {
     /**
      * Display a listing of the activities.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $activities = Activity::all();
-        return view('activity.index', compact('activities'));
+       $filter = new ActivityFilter();
+       $queryItems = $filter->transform($request);
+       
+        $activities = Activity::where($queryItems);
+       return new ActivityCollection($activities->paginate()->appends($request->query()));
     }
 
     /**
@@ -24,33 +33,15 @@ class ActivityController extends Controller
      */
     public function create()
     {
-        $periods = Period::all();
-        $staffs = Staff::all();
-        $users = User::all();
-
-        return view('activity.create', compact('periods', 'staffs', 'users'));
+       //
     }
 
     /**
      * Store a newly created activity in storage.
      */
-    public function store(Request $request)
+    public function store(StoreActivityRequest $request)
     {
-        $data = $request->validate([
-            'name' => 'required',
-            'objective' => 'required',
-            'competence' => 'required',
-            'syllabus' => 'required',
-            'authorized' => 'required|in:yes,no',
-            'activity' => 'required|integer',
-            'credits' => 'required|integer',
-            'period_id' => 'required|exists:periods,id',
-            'staff_id' => 'required|exists:staff,id',
-            'user_id' => 'required|exists:users,id',
-        ]);
-
-        Activity::create($data);
-        return redirect()->route('activities.index');
+      return new ActivityResource(Activity::create($request->all()));
     }
 
     /**
@@ -58,8 +49,7 @@ class ActivityController extends Controller
      */
     public function show(Activity $activity)
     {
-        return view('activity.show', compact('activity'));
-
+       return new  ActivityResource($activity);
     }
 
     /**
@@ -67,37 +57,15 @@ class ActivityController extends Controller
      */
     public function edit(Activity $activity)
     {
-
-        $periods = Period::all();
-        $staffs = Staff::all();
-        $users = User::all();
-
-
-        return view('activity.edit', compact('periods', 'staffs', 'users'));
+        //
     }
 
     /**
      * Update the specified activity in storage.
      */
-    public function update(Request $request, Activity $activity)
+    public function update(UpdateActivityRequest $request, Activity $activity)
     {
-
-
-        $data = $request->validate([
-            'name' => 'required',
-            'objective' => 'required',
-            'competence' => 'required',
-            'syllabus' => 'required',
-            'authorized' => 'required|in:yes,no',
-            'activity' => 'required|integer',
-            'credits' => 'required|integer',
-            'period_id' => 'required|exists:periods,id',
-            'staff_id' => 'required|exists:staff,id',
-            'user_id' => 'required|exists:users,id',
-        ]);
-
-        $activity->update($data);
-        return redirect()->route('activities.index');
+      $activity->update($request->all());
     }
 
     /**
@@ -105,14 +73,10 @@ class ActivityController extends Controller
      */
     public function destroy(Activity $activity)
     {
-        $message = 'Actividad eliminada con éxito';
+      $message = 'Registro eliminado con éxito';
 
-        try {
-            $activity->delete();
-        } catch (\Exception $e) {
-            $message = 'Error al eliminar la actividad';
-        }
+      $activity->delete();
 
-        return redirect()->route('activities.index')->with('message', $message);
-    }
+      return response()->json(['message' => 'Registro eliminado exitosamente']);
+  }
 }
